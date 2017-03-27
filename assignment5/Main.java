@@ -96,8 +96,23 @@ public class Main extends Application {
 	            	addMakeCritterGridPane(controllerGridPane);
 	            	addTimeStepGridPane(controllerGridPane);
 	            	addStatsGridPane(controllerGridPane);
-	           // 	addSeedGridPane(controllerGridPane);
-	           // 	addQuitButton(controllerGridPane);
+	            	addSeedGridPane(controllerGridPane);
+	           
+	            	
+	            	// 	ADD Quit button
+	            	GridPane quitButtonGridPane=new GridPane();
+	                quitButtonGridPane.setHgap(10);
+	                quitButtonGridPane.setVgap(10);
+	                quitButtonGridPane.setPadding(new Insets(10, 2, 10, 2));
+	                
+	                Button quitButton = new Button();
+	                quitButton.setText("Quit");
+	                quitButton.setOnAction(e->System.exit(0));
+	                quitButtonGridPane.add(quitButton, 0, 0);
+	                
+	               	               
+	                
+	                controllerGridPane.add(quitButtonGridPane, 0, 4);
 	            	
 	            	
 	            	controllerStage.setScene(new Scene(controllerGridPane));
@@ -415,8 +430,59 @@ public class Main extends Application {
     	
     }
     
-  
+    private static void addSeedGridPane(GridPane mainGridPane){
+    	GridPane seedGridPane=new GridPane();
+        seedGridPane.setHgap(10);
+        seedGridPane.setVgap(10);
+        seedGridPane.setPadding(new Insets(10, 2, 10, 2));
+       
+        Label seedLabel=new Label();
+    	seedLabel.setText("SET RANDOM SEED");
+    	seedGridPane.add(seedLabel, 0,0);
+    	
+    	Label seedNumberTextLabel=new Label();
+    	seedNumberTextLabel.setText("Seed");
+    	seedGridPane.add(seedNumberTextLabel,0,1);
+    	
+    	TextField seedNumberTextField=new TextField();
+    	seedGridPane.add(seedNumberTextField,1,1);
+    	
+    	Button setSeedButton = new Button();
+        setSeedButton.setText("Set seed");
+        setSeedButton.setOnAction(e->seedEventHandler(seedNumberTextField.getText()));
+        seedGridPane.add(setSeedButton, 0, 2);
+        
+        
+        mainGridPane.add(seedGridPane, 0,3);
+    }
     
+    private static void seedEventHandler(String text){
+    	int seed;
+    	try{
+			seed= Integer.parseInt(text);
+		}catch(NumberFormatException ex){
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Error");
+			alert.setHeaderText(null);
+			if(text.length()>0){
+				alert.setContentText("Number not entered: "+text);
+			}
+			else{
+				alert.setContentText("No number entered");
+			}
+			alert.showAndWait();
+			return;
+		}
+    	
+		Critter.setSeed(seed);
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Seed Set");
+		alert.setHeaderText(null);
+			alert.setContentText("Seed set to "+text);
+		
+	
+		alert.showAndWait();
+    }
     
 	public static void main(String[] args) {
 		launch(args);
