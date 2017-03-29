@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.Painter;
 
@@ -48,7 +50,12 @@ public class Main extends Application {
     public static double screenWidth=800;
     public static String myPackage = Critter.class.getPackage().toString().split(" ")[1];
     
-    
+    static GridPane animate;
+    static Button animateButton; //so animations can access that button
+    static Button animateStopButton;
+    static boolean animating = false;
+    static Timer timer;
+    static TimerTask animateGo;
     //run stats
     public static ComboBox<String> statsType;
     public static Label statsLabel;
@@ -97,7 +104,7 @@ public class Main extends Application {
 	            	addTimeStepGridPane(controllerGridPane);
 	            	addStatsGridPane(controllerGridPane);
 	            	addSeedGridPane(controllerGridPane);
-	           
+	            	addAnimationGridPane(controllerGridPane);
 	            	
 	            	// 	ADD Quit button
 	            	GridPane quitButtonGridPane=new GridPane();
@@ -174,6 +181,87 @@ public class Main extends Application {
 
     }
     
+    private static void addAnimationGridPane(GridPane mainGridPane){
+    	animate=new GridPane();
+        animate.setHgap(10);
+        animate.setVgap(10);
+        animate.setPadding(new Insets(10, 2, 10, 2));
+        
+        Label animateLabel=new Label();
+    	animateLabel.setText("ANIMATION TOOL");
+    	animate.add(animateLabel, 0,0);
+    	
+    	
+    	Label animateSpeed=new Label();
+    	animateSpeed.setText("Set Speed");
+    	animate.add(animateSpeed, 0,1);
+        
+    	ComboBox<String> speedComboBox=new ComboBox<String>();
+    	speedComboBox.getItems().addAll("1x" , "5x" , "10x" , "100x"); 
+    	animate.add(speedComboBox,1,1);
+    	
+    	
+        animateButton = new Button();
+        animateButton.setText("Start");
+        animateButton.setOnAction(e->animateHandler(speedComboBox.getValue()));
+        animate.add(animateButton, 0,2 );
+        
+        animateStopButton = new Button();
+        animateStopButton.setText("Stop");
+        animateStopButton.setOnAction(e->animateStopHandler());
+        animate.add(animateStopButton, 1,2 );
+        
+        
+        mainGridPane.add(animate, 0, 5);
+    }
+    	
+    	
+    	
+    private static void animateStopHandler() {
+    	timer.cancel();
+	}
+
+
+
+	private static void animateHandler(String string){   
+    	animating = true;
+    	timer = new Timer();
+	    animateGo = new TimerTask(){
+    		
+    		@Override
+			public void run() {
+    			
+    			int speed = 1;
+    	    	if(string.equals("1x")){
+    	    		speed = 1;
+    	    	}
+    	    	else if(string.equals("5x")){
+    	    		speed = 5;
+    	    	}
+    	    	else if(string.equals("10x")){
+    	    		speed = 10;
+    	    	}
+    	    	else if(string.equals("100x")){
+    	    		speed = 100;
+    	    	}
+    	    	else
+    	    		speed = 1;
+    		
+            		timeStepEventHandler(Integer.toString(speed));
+            		
+    							
+			}
+    	};
+    	
+    		
+        	timer.scheduleAtFixedRate(animateGo, 500, 500);
+
+    		
+    	
+    }
+	
+
+    
     
     private static void addMakeCritterGridPane(GridPane mainGridPane){
     	GridPane makeCritter=new GridPane();
@@ -209,7 +297,7 @@ public class Main extends Application {
         mainGridPane.add(makeCritter, 0, 0);
     }
 	
-    
+   
     private static ArrayList<String> getAllCritterType(String path){
     	 	   	
     	File file=new File(path);
