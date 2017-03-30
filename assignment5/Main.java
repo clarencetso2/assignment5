@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import javax.swing.Painter;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -60,7 +61,21 @@ public class Main extends Application {
     public static ComboBox<String> statsType;
     public static Label statsLabel;
 
+    
+    // controls to disable
+    static Button statsTypeButton;
+    static ComboBox<String> speedComboBox;
+    static Button quitButton;
+    static ComboBox<String> critterTypeComboBox;
 	static GridPane grid = new GridPane();
+	static Button makeCritterButton;
+	static TextField critterQuantityTextField;
+	static Button timeStepButton;
+	static TextField numStepsTextField;
+	static TextField seedNumberTextField;
+	static Button setSeedButton;
+	
+	
 	MediaPlayer mediaPlayer;
 	@Override
 	public void start(Stage primaryStage) {
@@ -112,14 +127,14 @@ public class Main extends Application {
 	                quitButtonGridPane.setVgap(10);
 	                quitButtonGridPane.setPadding(new Insets(10, 2, 10, 2));
 	                
-	                Button quitButton = new Button();
+	                quitButton = new Button();
 	                quitButton.setText("Quit");
 	                quitButton.setOnAction(e->System.exit(0));
 	                quitButtonGridPane.add(quitButton, 0, 0);
 	                
 	               	               
 	                
-	                controllerGridPane.add(quitButtonGridPane, 0, 4);
+	                controllerGridPane.add(quitButtonGridPane, 0, 5);
 	            	
 	            	
 	            	controllerStage.setScene(new Scene(controllerGridPane));
@@ -130,7 +145,7 @@ public class Main extends Application {
 	            	
 	            	primaryStage.setTitle("Critter Display");
 	    	    	Group root=new Group();
-	    	    	gridCanvas=new Canvas(1280,720);
+	    	    	gridCanvas=new Canvas(1920,1080);
 	    	    	gridGraphicsContext=gridCanvas.getGraphicsContext2D();
 	    	    	root.getChildren().add(gridCanvas);
 	    	    	primaryStage.setScene(new Scene(root));
@@ -159,6 +174,22 @@ public class Main extends Application {
 
 	
     public static void drawGrid(Critter[][] grid){
+    	
+    	gridGraphicsContext.setFill(Color.SKYBLUE);
+    	gridGraphicsContext.fillRect(0,0,1280,720);
+    	gridGraphicsContext.setFill(Color.BLACK);
+    	gridLineWidth = Math.min(screenWidth/Params.world_width*1.0, screenHeight/Params.world_height*1.0)/Math.min(Params.world_width, Params.world_height);
+    	
+    	double widthBetween = ((screenWidth - (gridLineWidth*1.0))/(Params.world_width));
+    	double heightBetween = ((screenHeight - (gridLineWidth*1.0))/(Params.world_height));
+    	for(int i=0;i<Params.world_height+1;i++){
+    		gridGraphicsContext.fillRect(i*widthBetween,0,gridLineWidth,screenHeight);
+    	}
+    	for(int i=0;i<Params.world_width+1;i++){
+    		gridGraphicsContext.fillRect(0,i*heightBetween,screenWidth,gridLineWidth);
+    	}
+    	
+    	/*
     	gridGraphicsContext.setFill(Color.SKYBLUE);
     	gridGraphicsContext.fillRect(0,0,1280,720);
     	gridGraphicsContext.setFill(Color.BLACK);
@@ -176,6 +207,7 @@ public class Main extends Application {
     	if(grid==null){
     		return;
     	}
+    	*/
     	//drawCritters(grid,widthBetweenLines,heightBetweenLines);
     	//statisticsEventHandler(statisticsComboBox.getValue());
 
@@ -196,8 +228,10 @@ public class Main extends Application {
     	animateSpeed.setText("Set Speed");
     	animate.add(animateSpeed, 0,1);
         
-    	ComboBox<String> speedComboBox=new ComboBox<String>();
+    	speedComboBox=new ComboBox<String>();
     	speedComboBox.getItems().addAll("1x" , "5x" , "10x" , "100x"); 
+    	speedComboBox.getSelectionModel().selectFirst();
+
     	animate.add(speedComboBox,1,1);
     	
     	
@@ -212,51 +246,91 @@ public class Main extends Application {
         animate.add(animateStopButton, 1,2 );
         
         
-        mainGridPane.add(animate, 0, 5);
+        mainGridPane.add(animate, 0, 4);
     }
     	
     	
     	
     private static void animateStopHandler() {
+    	statsTypeButton.setDisable(false);
+        speedComboBox.setDisable(false);
+        quitButton.setDisable(false);
+      critterTypeComboBox.setDisable(false);
+   	makeCritterButton.setDisable(false);
+   	critterQuantityTextField.setDisable(false);
+   	timeStepButton.setDisable(false);
+   	numStepsTextField.setDisable(false);
+   	seedNumberTextField.setDisable(false);
+	setSeedButton.setDisable(false);
+	statsTypeButton.setDisable(false);
+	statsType.setDisable(false);
     	timer.cancel();
 	}
 
-
+    
+    private static void disableControls(){
+    	 statsTypeButton.setDisable(true);
+         speedComboBox.setDisable(true);
+         quitButton.setDisable(true);
+       critterTypeComboBox.setDisable(true);
+    	makeCritterButton.setDisable(true);
+    	critterQuantityTextField.setDisable(true);
+    	timeStepButton.setDisable(true);
+    	numStepsTextField.setDisable(true);
+    	seedNumberTextField.setDisable(true);
+    	setSeedButton.setDisable(true);
+    	statsTypeButton.setDisable(true);
+    	statsType.setDisable(true);
+    }
 
 	private static void animateHandler(String string){   
     	animating = true;
     	timer = new Timer();
-	    animateGo = new TimerTask(){
+    	disableControls();
+        animateGo = new TimerTask(){
     		
     		@Override
 			public void run() {
-    			
-    			int speed = 1;
-    	    	if(string.equals("1x")){
-    	    		speed = 1;
-    	    	}
-    	    	else if(string.equals("5x")){
-    	    		speed = 5;
-    	    	}
-    	    	else if(string.equals("10x")){
-    	    		speed = 10;
-    	    	}
-    	    	else if(string.equals("100x")){
-    	    		speed = 100;
-    	    	}
-    	    	else
-    	    		speed = 1;
+     				int speed = 1;
+        	    	if(string.equals("1x")){
+        	    		speed = 1;
+        	    	}
+        	    	else if(string.equals("5x")){
+        	    		speed = 5;
+        	    	}
+        	    	else if(string.equals("10x")){
+        	    		speed = 10;
+        	    	}
+        	    	else if(string.equals("100x")){
+        	    		speed = 100;
+        	    	}
+        	    	else
+        	    		speed = 1;
     		
             		timeStepEventHandler(Integer.toString(speed));
-            		
-    							
+
+    	    		    			
+    			
+    			if(statsType.getValue().isEmpty() == false){
+	    			Platform.runLater(new Runnable(){
+
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+	    	    			runStatsEventHandler(statsType.getValue());
+
+						}
+
+	    			});    	    		
+	    			}
+    			
 			}
     	};
     	
     		
         	timer.scheduleAtFixedRate(animateGo, 500, 500);
 
-    		
+        
     	
     }
 	
@@ -277,7 +351,7 @@ public class Main extends Application {
     	critterType.setText("Type");
     	makeCritter.add(critterType, 0,1);
     	
-    	ComboBox<String> critterTypeComboBox=new ComboBox<String>();
+    	critterTypeComboBox=new ComboBox<String>();
     	critterTypeComboBox.getItems().addAll(getAllCritterType(".")); 
     	makeCritter.add(critterTypeComboBox,1,1);
     	
@@ -285,10 +359,10 @@ public class Main extends Application {
     	critterQuantity.setText("Quantity");
     	makeCritter.add(critterQuantity,0,2);
     	
-    	TextField critterQuantityTextField=new TextField();
+    	critterQuantityTextField=new TextField();
     	makeCritter.add(critterQuantityTextField,1,2);
     	
-    	Button makeCritterButton = new Button();
+    	makeCritterButton = new Button();
         makeCritterButton.setText("Add Critters");
         makeCritterButton.setOnAction(e->makeCritterHandler(critterTypeComboBox.getValue(), critterQuantityTextField.getText()));
         makeCritter.add(makeCritterButton, 0,3 );
@@ -413,10 +487,10 @@ public class Main extends Application {
     	numTimeStepLabel.setText("Number of Steps");
     	timeStepGridPane.add(numTimeStepLabel,0,1);
     	
-    	TextField numStepsTextField=new TextField();
+    	numStepsTextField=new TextField();
     	timeStepGridPane.add(numStepsTextField,1,1);
     	
-    	Button timeStepButton = new Button();
+    	timeStepButton = new Button();
         timeStepButton.setText("Step");
         timeStepButton.setOnAction(e->timeStepEventHandler(numStepsTextField.getText()));
         timeStepGridPane.add(timeStepButton, 0, 2);
@@ -463,15 +537,17 @@ public class Main extends Application {
     	statsTypeLabel.setText("Type");
     	statisticsGridPane.add(statsTypeLabel,0,1);
     	
-    	Button statsTypeButton = new Button("Run Stats");
+    	statsTypeButton = new Button("Run Stats");
     	statisticsGridPane.add(statsTypeButton, 2, 1);
     	
     	
     	 statsType=new ComboBox<String>();
     	statisticsGridPane.add(statsType,1,1);
     	
-    	
+    	statsType.getItems().addAll("");
     	statsType.getItems().addAll(getAllCritterType(".")); 
+    	statsType.getSelectionModel().selectFirst();
+
     	statsTypeButton.setOnAction(e->runStatsEventHandler(statsType.getValue()));
     	
     	
@@ -496,6 +572,8 @@ public class Main extends Application {
     		    	Method inMethod=inClass.getMethod("runStats",List.class);
     		    	
     		    	displayString=(String)inMethod.invoke(null,critterList);
+    		    	statsLabel.setText(displayString);
+
     		    	
     		 		}catch(Exception ex){
     		    		
@@ -514,7 +592,6 @@ public class Main extends Application {
     				return;
     			
     		 }
-    	statsLabel.setText(displayString);
     	
     }
     
@@ -532,10 +609,10 @@ public class Main extends Application {
     	seedNumberTextLabel.setText("Seed");
     	seedGridPane.add(seedNumberTextLabel,0,1);
     	
-    	TextField seedNumberTextField=new TextField();
+    	seedNumberTextField=new TextField();
     	seedGridPane.add(seedNumberTextField,1,1);
     	
-    	Button setSeedButton = new Button();
+    	setSeedButton = new Button();
         setSeedButton.setText("Set seed");
         setSeedButton.setOnAction(e->seedEventHandler(seedNumberTextField.getText()));
         seedGridPane.add(setSeedButton, 0, 2);
