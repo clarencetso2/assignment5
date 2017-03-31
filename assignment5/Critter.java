@@ -1,4 +1,5 @@
 
+
 package assignment5;
 
 import java.lang.reflect.Constructor;
@@ -540,12 +541,40 @@ public abstract class Critter {
     	
     	double widthBetween = ((Main.screenWidth - (gridLineWidth*1.0))/(Params.world_width));
     	double heightBetween = ((Main.screenHeight - (gridLineWidth*1.0))/(Params.world_height));
+    	double spaceBetween = Math.min(widthBetween, heightBetween);
+    	
+    	for(int i = 0; i < Params.world_height; i++) {
+    		for(int j = 0; j < Params.world_width; j++) {
+    			critterGrid[i][j] = null;
+    		}
+    	}
 		
 		for( Critter next:population ) {
-			critterGrid[next.y_coord][next.x_coord] = next;
+			if(critterGrid[next.y_coord][next.x_coord] == null) {
+				critterGrid[next.y_coord][next.x_coord] = next;
+			}
 		}
 		
-		Main.grid.getChildren().clear();
+		
+		//clear the grid of critters
+		for(int i = 0; i < Params.world_height; i++) {
+			for(int j = 0; j < Params.world_width; j++) {
+				Main.gridGraphicsContext.clearRect(gridLineWidth + i*spaceBetween, gridLineWidth + j*spaceBetween, spaceBetween - gridLineWidth, spaceBetween - gridLineWidth);
+				Main.gridGraphicsContext.setFill(Color.SKYBLUE);
+				Main.gridGraphicsContext.fillRect(gridLineWidth + i*spaceBetween, gridLineWidth + j*spaceBetween, spaceBetween - gridLineWidth, spaceBetween - gridLineWidth);
+			}
+		}
+    	Main.gridGraphicsContext.setFill(Color.SKYBLUE);
+    	Main.gridGraphicsContext.fillRect(0,0,1280,720);
+		Main.gridGraphicsContext.setFill(Color.BLACK);
+    	for(int i=0;i<Params.world_height+1;i++){
+    		Main.gridGraphicsContext.fillRect(i*spaceBetween,0,gridLineWidth,(Params.world_width)*spaceBetween+gridLineWidth);
+    	}
+    	for(int i=0;i<Params.world_width+1;i++){
+    		Main.gridGraphicsContext.fillRect(0,i*spaceBetween,(Params.world_height)*spaceBetween,gridLineWidth);
+    	}
+		
+		//populate the grid with critters
 		for(int i = 0; i < Params.world_height; i++) {
 			for(int j = 0; j < Params.world_width; j++) {
 				if(critterGrid[i][j] != null) {
@@ -562,42 +591,42 @@ public abstract class Critter {
 					Main.gridGraphicsContext.setStroke(outlineColor);
 					switch(critShape) {
 					case 0: 
-							Main.gridGraphicsContext.fillOval(gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.3, widthBetween*0.4, heightBetween*0.4);
-							Main.gridGraphicsContext.strokeOval(gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.3, widthBetween*0.4, heightBetween*0.4);
+							Main.gridGraphicsContext.fillOval(gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.3, spaceBetween*0.4, spaceBetween*0.4);
+							Main.gridGraphicsContext.strokeOval(gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.3, spaceBetween*0.4, spaceBetween*0.4);
 							break;
 					
 					case 1: 
 						
-							Main.gridGraphicsContext.fillRect(gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.3, widthBetween*0.4, heightBetween*0.4);
-							Main.gridGraphicsContext.strokeRect(gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.3, widthBetween*0.4, heightBetween*0.4);
+							Main.gridGraphicsContext.fillRect(gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.3, spaceBetween*0.4, spaceBetween*0.4);
+							Main.gridGraphicsContext.strokeRect(gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.3, spaceBetween*0.4, spaceBetween*0.4);
 							break;
 
 					case 2: 							
 							
-							Main.gridGraphicsContext.fillPolygon(new double[]{gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + i*widthBetween + widthBetween*0.7},
-																 new double[]{gridLineWidth + j*heightBetween + heightBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.7},
+							Main.gridGraphicsContext.fillPolygon(new double[]{gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + i*spaceBetween + spaceBetween*0.7},
+																 new double[]{gridLineWidth + j*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.7},
 																 3);
-							Main.gridGraphicsContext.strokePolygon(new double[]{gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + i*widthBetween + widthBetween*0.7},
-																   new double[]{gridLineWidth + j*heightBetween + heightBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.7},
+							Main.gridGraphicsContext.strokePolygon(new double[]{gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + i*spaceBetween + spaceBetween*0.7},
+																   new double[]{gridLineWidth + j*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.7},
 																   3);
 							break;
 
 					case 3: 
 						
-							Main.gridGraphicsContext.fillPolygon(new double[]{gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.7},
-																 new double[]{gridLineWidth + j*heightBetween + heightBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.5, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.5},
+							Main.gridGraphicsContext.fillPolygon(new double[]{gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.7},
+																 new double[]{gridLineWidth + j*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.5, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.5},
 																 4);
-							Main.gridGraphicsContext.strokePolygon(new double[]{gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.7},
-																   new double[]{gridLineWidth + j*heightBetween + heightBetween*0.3, gridLineWidth + j*heightBetween + heightBetween*0.5, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.5},
+							Main.gridGraphicsContext.strokePolygon(new double[]{gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.7},
+																   new double[]{gridLineWidth + j*spaceBetween + spaceBetween*0.3, gridLineWidth + j*spaceBetween + spaceBetween*0.5, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.5},
 																   4);				
 							break;
 					case 4: 
 						
-							Main.gridGraphicsContext.fillPolygon(new double[]{gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.45, gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + i*widthBetween + widthBetween*0.42, gridLineWidth + i*widthBetween + widthBetween*0.37, gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.63, gridLineWidth + i*widthBetween + widthBetween*0.58, gridLineWidth + i*widthBetween + widthBetween*0.7, gridLineWidth + i*widthBetween + widthBetween*0.55},
-																 new double[]{gridLineWidth + j*heightBetween + heightBetween*0.3,gridLineWidth + j*heightBetween + heightBetween*0.46, gridLineWidth + j*heightBetween + heightBetween*0.46, gridLineWidth + j*heightBetween + heightBetween*0.54, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.62, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.54, gridLineWidth + j*heightBetween + heightBetween*0.46, gridLineWidth + j*heightBetween + heightBetween*0.46},
+							Main.gridGraphicsContext.fillPolygon(new double[]{gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.45, gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + i*spaceBetween + spaceBetween*0.42, gridLineWidth + i*spaceBetween + spaceBetween*0.37, gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.63, gridLineWidth + i*spaceBetween + spaceBetween*0.58, gridLineWidth + i*spaceBetween + spaceBetween*0.7, gridLineWidth + i*spaceBetween + spaceBetween*0.55},
+																 new double[]{gridLineWidth + j*spaceBetween + spaceBetween*0.3,gridLineWidth + j*spaceBetween + spaceBetween*0.46, gridLineWidth + j*spaceBetween + spaceBetween*0.46, gridLineWidth + j*spaceBetween + spaceBetween*0.54, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.62, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.54, gridLineWidth + j*spaceBetween + spaceBetween*0.46, gridLineWidth + j*spaceBetween + spaceBetween*0.46},
 																 10);
-							Main.gridGraphicsContext.strokePolygon(new double[]{gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.45, gridLineWidth + i*widthBetween + widthBetween*0.3, gridLineWidth + i*widthBetween + widthBetween*0.42, gridLineWidth + i*widthBetween + widthBetween*0.37, gridLineWidth + i*widthBetween + widthBetween*0.5, gridLineWidth + i*widthBetween + widthBetween*0.63, gridLineWidth + i*widthBetween + widthBetween*0.58, gridLineWidth + i*widthBetween + widthBetween*0.7, gridLineWidth + i*widthBetween + widthBetween*0.55},
-																   new double[]{gridLineWidth + j*heightBetween + heightBetween*0.3,gridLineWidth + j*heightBetween + heightBetween*0.46, gridLineWidth + j*heightBetween + heightBetween*0.46, gridLineWidth + j*heightBetween + heightBetween*0.54, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.62, gridLineWidth + j*heightBetween + heightBetween*0.7, gridLineWidth + j*heightBetween + heightBetween*0.54, gridLineWidth + j*heightBetween + heightBetween*0.46, gridLineWidth + j*heightBetween + heightBetween*0.46},
+							Main.gridGraphicsContext.strokePolygon(new double[]{gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.45, gridLineWidth + i*spaceBetween + spaceBetween*0.3, gridLineWidth + i*spaceBetween + spaceBetween*0.42, gridLineWidth + i*spaceBetween + spaceBetween*0.37, gridLineWidth + i*spaceBetween + spaceBetween*0.5, gridLineWidth + i*spaceBetween + spaceBetween*0.63, gridLineWidth + i*spaceBetween + spaceBetween*0.58, gridLineWidth + i*spaceBetween + spaceBetween*0.7, gridLineWidth + i*spaceBetween + spaceBetween*0.55},
+																   new double[]{gridLineWidth + j*spaceBetween + spaceBetween*0.3,gridLineWidth + j*spaceBetween + spaceBetween*0.46, gridLineWidth + j*spaceBetween + spaceBetween*0.46, gridLineWidth + j*spaceBetween + spaceBetween*0.54, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.62, gridLineWidth + j*spaceBetween + spaceBetween*0.7, gridLineWidth + j*spaceBetween + spaceBetween*0.54, gridLineWidth + j*spaceBetween + spaceBetween*0.46, gridLineWidth + j*spaceBetween + spaceBetween*0.46},
 																   10);		
 
 							break;

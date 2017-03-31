@@ -11,6 +11,7 @@ import java.util.TimerTask;
 
 import javax.swing.Painter;
 
+import assignment5.Critter.CritterShape;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -47,8 +48,8 @@ public class Main extends Application {
     public static int gridRows=10;//Initial rows and columns
     public static int gridCols=10;
     public static double gridLineWidth=10;
-    public static double screenHeight=800;
-    public static double screenWidth=800;
+    public static double screenHeight=720;
+    public static double screenWidth=1280;
     public static String myPackage = Critter.class.getPackage().toString().split(" ")[1];
     
     static GridPane animate;
@@ -74,6 +75,17 @@ public class Main extends Application {
 	static TextField numStepsTextField;
 	static TextField seedNumberTextField;
 	static Button setSeedButton;
+
+	//Shape final constants to draw normalized to 1 by 1 square
+    private final static double[][] triangle={{0.50,0.06},{0.06,0.78},{0.94,0.78}};
+    private final static double[][] square={{0.12,0.12},{0.12,0.88},{0.88,0.88},{0.88,0.12}};
+    private final static double[][] diamond={{0.50,0.06},{0.25,0.50},{0.50,0.94},{0.75,0.50}};
+    private final static double[][] star={{0.20,0.95},{0.50,0.75},{0.80,0.95},{0.68,0.60},{0.95,0.40},{0.62,0.38},{0.50,0.05},{0.38,0.38},{0.05,0.40},{0.32,0.64}};
+  //Oval/circle draw scaling to fit in center of circle
+    private final static double scalingCircle=0.5;
+	
+	
+	
 	
 	
 	MediaPlayer mediaPlayer;
@@ -145,7 +157,7 @@ public class Main extends Application {
 	            	
 	            	primaryStage.setTitle("Critter Display");
 	    	    	Group root=new Group();
-	    	    	gridCanvas=new Canvas(1920,1080);
+	    	    	gridCanvas=new Canvas(1600,900);
 	    	    	gridGraphicsContext=gridCanvas.getGraphicsContext2D();
 	    	    	root.getChildren().add(gridCanvas);
 	    	    	primaryStage.setScene(new Scene(root));
@@ -182,37 +194,70 @@ public class Main extends Application {
     	
     	double widthBetween = ((screenWidth - (gridLineWidth*1.0))/(Params.world_width));
     	double heightBetween = ((screenHeight - (gridLineWidth*1.0))/(Params.world_height));
+    	double spaceBetween = Math.min(widthBetween, heightBetween);
     	for(int i=0;i<Params.world_height+1;i++){
-    		gridGraphicsContext.fillRect(i*widthBetween,0,gridLineWidth,screenHeight);
+    		gridGraphicsContext.fillRect(i*spaceBetween,0,gridLineWidth,(Params.world_width)*spaceBetween+gridLineWidth);
     	}
     	for(int i=0;i<Params.world_width+1;i++){
-    		gridGraphicsContext.fillRect(0,i*heightBetween,screenWidth,gridLineWidth);
+    		gridGraphicsContext.fillRect(0,i*spaceBetween,(Params.world_height)*spaceBetween,gridLineWidth);
     	}
     	
-    	/*
-    	gridGraphicsContext.setFill(Color.SKYBLUE);
-    	gridGraphicsContext.fillRect(0,0,1280,720);
-    	gridGraphicsContext.setFill(Color.BLACK);
-    	gridLineWidth=Math.min(screenWidth/gridCols*1.0, screenHeight/gridRows*1.0)/10;
     	
-    	double widthBetweenLines=(screenWidth-gridLineWidth*1.0)/(gridCols);
-    	double heightBetweenLines=(screenHeight-gridLineWidth*1.0)/(gridRows);
-    	for(int i=0;i<gridCols+1;i++){
-    		gridGraphicsContext.fillRect(i*widthBetweenLines,0,gridLineWidth,screenHeight);
-    	}
-    	for(int i=0;i<gridRows+1;i++){
-    		gridGraphicsContext.fillRect(0,i*heightBetweenLines,screenWidth,gridLineWidth);
-    	}
     	
     	if(grid==null){
     		return;
     	}
-    	*/
-    	//drawCritters(grid,widthBetweenLines,heightBetweenLines);
+    	
+    	drawCritters(grid,widthBetween,heightBetween);
     	//statisticsEventHandler(statisticsComboBox.getValue());
 
     }
     
+    protected static void drawCritters(Critter[][] grid,double widthBetweenLines, double heightBetweenLines){
+    	for(int i=0;i<grid.length;i++){
+    		for(int j=0;j<grid[0].length;j++){
+    			if(grid[i][j]==null){
+    				continue;
+    			}
+    			CritterShape val=grid[i][j].viewShape();
+    			gridGraphicsContext.setFill(grid[i][j].viewFillColor());
+    			gridGraphicsContext.setStroke(grid[i][j].viewOutlineColor());
+    			gridGraphicsContext.setLineWidth(gridLineWidth/2);
+    			if(val==CritterShape.CIRCLE){
+    				gridGraphicsContext.strokeOval(j*widthBetweenLines+gridLineWidth+scalingCircle*(widthBetweenLines-gridLineWidth)/2.0,i*heightBetweenLines+gridLineWidth+scalingCircle*(heightBetweenLines-gridLineWidth)/2.0,(widthBetweenLines-gridLineWidth)*scalingCircle,(heightBetweenLines-gridLineWidth)*scalingCircle);
+    				gridGraphicsContext.fillOval(j*widthBetweenLines+gridLineWidth+scalingCircle*(widthBetweenLines-gridLineWidth)/2.0,i*heightBetweenLines+gridLineWidth+scalingCircle*(heightBetweenLines-gridLineWidth)/2.0,(widthBetweenLines-gridLineWidth)*scalingCircle,(heightBetweenLines-gridLineWidth)*scalingCircle);
+    			}
+    			else if(val==CritterShape.DIAMOND){
+    				drawPolygon(diamond,i,j,widthBetweenLines,heightBetweenLines);
+    			}
+    			else if(val==CritterShape.STAR){
+    				drawPolygon(star,i,j,widthBetweenLines,heightBetweenLines);
+    			}
+    			else if(val==CritterShape.TRIANGLE){
+    				drawPolygon(triangle,i,j,widthBetweenLines,heightBetweenLines);
+    			}
+    			else if(val==CritterShape.SQUARE){
+    				drawPolygon(square,i,j,widthBetweenLines,heightBetweenLines);
+    			}
+    		}
+    	}
+    }
+    
+    private static void drawPolygon(double[][] shapeCoordinates,int row, int col, double widthBetweenLines,double heightBetweenLines){
+    	double[] xCoords=new double[shapeCoordinates.length];
+    	double[] yCoords=new double[shapeCoordinates.length];
+    	double horizontalSize=widthBetweenLines-gridLineWidth;
+    	double verticalSize=heightBetweenLines-gridLineWidth;
+    	double horizontalOffset=widthBetweenLines*col+gridLineWidth;
+    	double verticalOffset=heightBetweenLines*row+gridLineWidth;
+    	for(int i=0;i<shapeCoordinates.length;i++){
+    		xCoords[i]=shapeCoordinates[i][0]*horizontalSize+horizontalOffset;
+    		yCoords[i]=shapeCoordinates[i][1]*verticalSize+verticalOffset;
+    	}
+    	gridGraphicsContext.strokePolygon(xCoords,yCoords,shapeCoordinates.length);
+    	gridGraphicsContext.fillPolygon(xCoords,yCoords,shapeCoordinates.length);
+    }
+
     private static void addAnimationGridPane(GridPane mainGridPane){
     	animate=new GridPane();
         animate.setHgap(10);
@@ -653,7 +698,3 @@ public class Main extends Application {
 		launch(args);
 	}
 }
-
-
-
-	
