@@ -12,6 +12,7 @@ public class Critter1 extends Critter {
 	
 	
 	public void doTimeStep() {
+		look(direction, false);
 		walk(direction);
 		direction = getRandomInt(8);
 	}
@@ -29,11 +30,11 @@ public class Critter1 extends Critter {
 	@Override
 	public CritterShape viewShape() {
 		// TODO Auto-generated method stub
-		return CritterShape.CIRCLE;
+		return CritterShape.TRIANGLE;
 		
 	}
 	public javafx.scene.paint.Color viewColor() { 
-		return javafx.scene.paint.Color.WHITE; 
+		return javafx.scene.paint.Color.BLACK; 
 	}
 	
 

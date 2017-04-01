@@ -40,16 +40,61 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.control.ScrollPane;
 
 public class Main extends Application {
+	
+	
+	
+	class ResizeCanvas extends Canvas {
+		
+		public ResizeCanvas() {
+			widthProperty().addListener(evt -> redraw());
+			heightProperty().addListener(evt -> redraw());
+		}
+		
+		public ResizeCanvas(double width, double height) {
+			//setWidth(width);
+			//setHeight(height);
+			super(width, height);
+			widthProperty().addListener(evt -> redraw());
+			heightProperty().addListener(evt -> redraw());
+		}
+		
+		private void redraw() {
+			Main.screenHeight = getHeight();
+			Main.screenWidth = getWidth();
+			Critter.displayWorld();
+		}
+		
+		public double prefWidth(double height) {
+			return getWidth();
+		}
+		
+		public double prefHeight(double width) {
+			return getHeight();
+		}
+		
+		
+		public boolean isResizable() {
+			return true;
+		}
+	}
+	
+	
+	
+	
+	
+	
     //Variables created for drawing grid
-    public static Canvas gridCanvas=null;//Main canvas which the world is displayed
+    public static ResizeCanvas gridCanvas=null;//Main canvas which the world is displayed
     public static GraphicsContext gridGraphicsContext=null;
     public static int gridRows=10;//Initial rows and columns
     public static int gridCols=10;
     public static double gridLineWidth=10;
-    public static double screenHeight=720;
-    public static double screenWidth=1280;
+    public static int minSize = Math.min(Params.world_width, Params.world_height);
+    public static double screenHeight=Math.max(100, Math.min(Params.world_height*25, 1200));
+    public static double screenWidth=Math.max(100, Math.min(Params.world_width*25, 1200));
     public static String myPackage = Critter.class.getPackage().toString().split(" ")[1];
     
     static GridPane animate;
@@ -61,6 +106,8 @@ public class Main extends Application {
     //run stats
     public static ComboBox<String> statsType;
     public static Label statsLabel;
+    
+    static ScrollPane scrollpane = new ScrollPane();
 
     
     // controls to disable
@@ -83,9 +130,6 @@ public class Main extends Application {
     private final static double[][] star={{0.20,0.95},{0.50,0.75},{0.80,0.95},{0.68,0.60},{0.95,0.40},{0.62,0.38},{0.50,0.05},{0.38,0.38},{0.05,0.40},{0.32,0.64}};
   //Oval/circle draw scaling to fit in center of circle
     private final static double scalingCircle=0.5;
-	
-	
-	
 	
 	
 	MediaPlayer mediaPlayer;
@@ -157,10 +201,23 @@ public class Main extends Application {
 	            	
 	            	primaryStage.setTitle("Critter Display");
 	    	    	Group root=new Group();
-	    	    	gridCanvas=new Canvas(1600,900);
+	    	    	gridCanvas=new ResizeCanvas(screenWidth,screenHeight);
 	    	    	gridGraphicsContext=gridCanvas.getGraphicsContext2D();
-	    	    	root.getChildren().add(gridCanvas);
-	    	    	primaryStage.setScene(new Scene(root));
+	    	    	/*
+	    	    	scrollpane.setContent(gridCanvas);
+	    	    	scrollpane.setFitToHeight(true);
+	    	    	scrollpane.setFitToWidth(true);
+	    	    	scrollpane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+	    	    	scrollpane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+	    	    	scrollpane.setPrefViewportWidth(Math.min(screenWidth, 1200));
+	    	    	scrollpane.setPrefViewportHeight(Math.min(screenHeight, 600));
+	    	    	//root.getChildren().add(gridCanvas);
+	    	    	 *
+	    	    	 */
+	    	    	grid.getChildren().add(gridCanvas);
+	    	    	gridCanvas.widthProperty().bind(grid.widthProperty());
+	    	    	gridCanvas.heightProperty().bind(grid.heightProperty());
+	    	    	primaryStage.setScene(new Scene(grid));
 
 	    	    	drawGrid(null);	    			
 	    			grid.setGridLinesVisible(true);
@@ -188,18 +245,19 @@ public class Main extends Application {
     public static void drawGrid(Critter[][] grid){
     	
     	gridGraphicsContext.setFill(Color.SKYBLUE);
-    	gridGraphicsContext.fillRect(0,0,1280,720);
+    	gridGraphicsContext.fillRect(0,0,screenWidth,screenHeight);
     	gridGraphicsContext.setFill(Color.BLACK);
     	gridLineWidth = Math.min(screenWidth/Params.world_width*1.0, screenHeight/Params.world_height*1.0)/Math.min(Params.world_width, Params.world_height);
     	
     	double widthBetween = ((screenWidth - (gridLineWidth*1.0))/(Params.world_width));
     	double heightBetween = ((screenHeight - (gridLineWidth*1.0))/(Params.world_height));
     	double spaceBetween = Math.min(widthBetween, heightBetween);
-    	for(int i=0;i<Params.world_height+1;i++){
-    		gridGraphicsContext.fillRect(i*spaceBetween,0,gridLineWidth,(Params.world_width)*spaceBetween+gridLineWidth);
-    	}
+    	gridLineWidth = 0.1*spaceBetween;
     	for(int i=0;i<Params.world_width+1;i++){
-    		gridGraphicsContext.fillRect(0,i*spaceBetween,(Params.world_height)*spaceBetween,gridLineWidth);
+    		gridGraphicsContext.fillRect(i*spaceBetween,0,gridLineWidth,(Params.world_height)*spaceBetween+gridLineWidth);
+    	}
+    	for(int i=0;i<Params.world_height+1;i++){
+    		gridGraphicsContext.fillRect(0,i*spaceBetween,(Params.world_width)*spaceBetween,gridLineWidth);
     	}
     	
     	
@@ -373,7 +431,7 @@ public class Main extends Application {
     	};
     	
     		
-        	timer.scheduleAtFixedRate(animateGo, 500, 500);
+        	timer.scheduleAtFixedRate(animateGo, 500, 1000);
 
         
     	
@@ -566,6 +624,19 @@ public class Main extends Application {
 			Critter.worldTimeStep();
 		}
     	Critter.displayWorld();  	
+    	
+		if(statsType.getValue().isEmpty() == false){
+			Platform.runLater(new Runnable(){
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+	    			runStatsEventHandler(statsType.getValue());
+
+				}
+
+			});    	    		
+			}
     }
    
     private static void addStatsGridPane(GridPane mainGridPane){
