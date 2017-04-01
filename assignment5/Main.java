@@ -394,38 +394,56 @@ public class Main extends Application {
     		
     		@Override
 			public void run() {
-     				int speed = 1;
-        	    	if(string.equals("1x")){
-        	    		speed = 1;
-        	    	}
-        	    	else if(string.equals("5x")){
-        	    		speed = 5;
-        	    	}
-        	    	else if(string.equals("10x")){
-        	    		speed = 10;
-        	    	}
-        	    	else if(string.equals("100x")){
-        	    		speed = 100;
-        	    	}
-        	    	else
-        	    		speed = 1;
-    		
-            		timeStepEventHandler(Integer.toString(speed));
+    			
+    			Platform.runLater(new Runnable(){
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if(statsType.getValue().isEmpty() == false){
+			    			
+		    				
+		    				runStatsEventHandler(statsType.getValue());
+		    			}
+
+		    	    		
+
+					}
+
+    			});    	  
+    			
+    			
 
     	    		    			
     			
-    			if(statsType.getValue().isEmpty() == false){
 	    			Platform.runLater(new Runnable(){
 
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-	    	    			runStatsEventHandler(statsType.getValue());
+	    	    			int speed = 1;
+	            	    	if(string.equals("1x")){
+	            	    		speed = 1;
+	            	    	}
+	            	    	else if(string.equals("5x")){
+	            	    		speed = 5;
+	            	    	}
+	            	    	else if(string.equals("10x")){
+	            	    		speed = 10;
+	            	    	}
+	            	    	else if(string.equals("100x")){
+	            	    		speed = 100;
+	            	    	}
+	            	    	else
+	            	    		speed = 1;
+	        		
+	                		timeStepEventHandler(Integer.toString(speed));
 
 						}
 
 	    			});    	    		
-	    			}
+	    			
+    			
     			
 			}
     	};
