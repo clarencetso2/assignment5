@@ -367,6 +367,8 @@ public class Main extends Application {
 	setSeedButton.setDisable(false);
 	statsTypeButton.setDisable(false);
 	statsType.setDisable(false);
+	animateButton.setDisable(false);
+
     	timer.cancel();
 	}
 
@@ -384,6 +386,7 @@ public class Main extends Application {
     	setSeedButton.setDisable(true);
     	statsTypeButton.setDisable(true);
     	statsType.setDisable(true);
+    	animateButton.setDisable(true);
     }
 
 	private static void animateHandler(String string){   
